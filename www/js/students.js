@@ -10,42 +10,44 @@ function loadStudents() {
         type: "GET",
         url: baseSurviceUrl,
         beforeSend: function(xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + base64Auth);
+            xhr.setRequestHeader("Authorization", "Basic " + base64Auth)
         },
         success: function(students) {
             $.mobile.loading("hide");
+            console.log({ students });
             displayStudents(students);
         },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            alert("Status: " + textStatus);
-            alert("Error: " + errorThrown);
+        error: function() {
+            $.mobile.loading("hide");
+            alert("Error");
         }
     });
-}
 
-function displayStudents(students) {
-    $('#results').empty();
+    function displayStudents(students) {
+        $("#results").empty();
 
-    for (let student of students) {
-        $('#results').append(
-            $('<li>').append(
-                $('<a>')
-                    .attr('href', '#detailsPage')
-                    .addClass("ui-btn ui-btn-icon-right ui-icon-carat-r")
-                    .click(function() { setStudentDetails(student); })
-                    .append(student.fullName)));
+        for (let student of students) {
+            $('#results').append(
+                $('<li>').append(
+                    $('<a>')
+                        .attr('href', '#detailsPage')
+                        .addClass("ui-btn ui-btn-icon-right ui-icon-carat-r")
+                        .click(function() {
+                            setStudentDetails(student);
+                        })
+                        .append(student.fullName)
+                )
+            );
+        }
+    }
+
+    function setStudentDetails(student) {
+        $("#student-name").text(student.fullName);
+        $("#student-faculty-number").text(student.facultyNumber);
     }
 }
 
-function setStudentDetails(student) {
-    $("#student-name").text(student.fullName);
-    $("#student-picture-view").attr("src", student.base64EncodePicture);
-
-    $('#student-faculty-number').text(student.facultyNumber);
-    $('#student-email').text(student.email);
-    $('#student-username').text(student.userName);
-}
-function getPicture() {
+function getPicutre() {
     navigator.camera.getPicture(succeededCameraCallback, failedCameraCallback, {
         quality: 25,
         destinationType: Camera.DestinationType.DATA_URL
@@ -54,8 +56,6 @@ function getPicture() {
 
 function succeededCameraCallback(imageData) {
     $('#myImage').attr('src', 'data:image/jpeg;base64,' + imageData);
-    $('#myImage').css('display', 'block');
-    $('#myImage').show();
 }
 
 function failedCameraCallback(message) {
@@ -65,7 +65,7 @@ function failedCameraCallback(message) {
 function sendPictureRequest() {
     $.mobile.loading("show");
 
-    let base64Img = $('#myImage').attr('src');
+    let base64Img = $("#myImage").attr('src');
     let facultyNumber = $('#faculty-number').val();
     let password = $('#password').val();
 
@@ -74,7 +74,8 @@ function sendPictureRequest() {
         Password: password,
         Picture: base64Img
     };
-    console.log(requestData);
+
+    console.log({ requestData });
 
     $.ajax({
         type: "PUT",
@@ -85,19 +86,16 @@ function sendPictureRequest() {
         success: function() {
             $.mobile.loading("hide");
             alert("Successfully added!");
-            loadDetailsPage();
+            loadHomePage();
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
             $.mobile.loading("hide");
-            loadDetailsPage();
+            loadHomePage();
         }
     });
 }
 
-function loadDetailsPage() {
-    const detailsPage = $("#detailsPage");
-    $.mobile.pageContainer.pagecontainer("change", detailsPage, {});
+function loadHomePage() {
+    const homePage = $("#detailsPage");
+    $.mobile.pageContainer.pagecontainer("change", homePage, {});
 }
-
-
-
